@@ -212,8 +212,7 @@ pip-log.txt
 *.mo
 
 # SELF
-config.php
-config*.php
+/_mods/config/
 companies/
 .htaccess
 *.config
