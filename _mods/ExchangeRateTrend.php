@@ -1,22 +1,13 @@
 <?php
-$modfile = implode(DIRECTORY_SEPARATOR,array(
-    dirname(__FILE__),
-    '_mods',
-    str_replace(dirname(__FILE__),'',__FILE__)
-));
-if(file_exists($modfile)){
-    include($modfile);
-}
-else{
-    die($modfile);
+include_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'config.php');
 /* $Id: ExchangeRateTrend.php 7143 2015-02-09 00:07:40Z rchacon $*/
 /* This script shows the trend in exchange rates as retrieved from ECB. */
 
-include('includes/session.inc');
+include(ROOT_DIR.'includes/session.inc');
 $Title = _('View Currency Trends');// Screen identification.
 $ViewTopic= 'Currencies';// Filename's id in ManualContents.php's TOC.
 $BookMark = 'ExchangeRateTrend';// Anchor's id in the manual's html document.
-include('includes/header.inc');
+include(ROOT_DIR.'includes/header.inc');
 
 $FunctionalCurrency = $_SESSION['CompanyRecord']['currencydefault'];
 
@@ -42,7 +33,7 @@ if ( isset($_GET['CurrencyToShow']) ){
 
 	$SQL = "SELECT currabrev FROM currencies";
 	$result=DB_query($SQL);
-	include('includes/CurrenciesArray.php'); // To get the currency name from the currency code.
+	include(ROOT_DIR.'includes/CurrenciesArray.php'); // To get the currency name from the currency code.
 
 	// CurrencyToShow Currency Picker
 	echo '<tr>
@@ -71,7 +62,12 @@ if ( isset($_GET['CurrencyToShow']) ){
 // **************
 // SHOW OUR GRAPH
 // **************
-	$image = 'http://www.google.com/finance/getchart?q=' . $FunctionalCurrency . $CurrencyToShow . '&amp;x=CURRENCY&amp;p=3M&amp;i=86400';
+	$images = array();
+    foreach(array(
+        '1M','3M','6M','1Y','5Y','40Y'
+    ) as $p){
+        $images[] = $p.'<img src="https://www.google.com/finance/getchart?q=' . $FunctionalCurrency . $CurrencyToShow . '&amp;x=CURRENCY&amp;p='.$p.'&amp;i=86400" alt="' ._('Trend Currently Unavailable') . '" />';
+    }
 
 	echo '<br />
 		<table class="selection">
@@ -83,9 +79,9 @@ if ( isset($_GET['CurrencyToShow']) ){
 			</th>
 		</tr>
 		<tr>
-			<td><img src="' . $image . '" alt="' ._('Trend Currently Unavailable') . '" /></td>
+			<td>' . implode('<br>',$images) . '</td>
 		</tr>
 		</table>';
 
-include('includes/footer.inc');
-}
+include(ROOT_DIR.'includes/footer.inc');
+

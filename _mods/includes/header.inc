@@ -30,7 +30,7 @@ if(isset($_SERVER['SERVER_NAME'])){ #excluding command line
 }
 header('System-Maintained: Systems Development, IT Services, Lorma Colleges');
 define('CSP',"default-src 'self' *.google.com  'unsafe-inline' *.lorma.edu;"
-    ." img-src 'self';"
+    ." img-src 'self' *.google.com;"
     ." font-src 'self' *.google.com;"
     ." script-src 'self' 'unsafe-eval' 'unsafe-inline' *.google.com;"
     ." object-src 'self';");
