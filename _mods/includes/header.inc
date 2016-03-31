@@ -1,14 +1,5 @@
 <?php
-$modfile = implode(DIRECTORY_SEPARATOR,array(
-    ROOT_DIR, #struc for includes
-    '_mods',
-    str_replace(ROOT_DIR,'',__FILE__)
-));
-if(file_exists($modfile)){
-    include($modfile);
-}
-else{
-    die($modfile);
+   
 /* $Id: header.inc 7155 2015-02-17 20:14:32Z vvs2012 $ */
 
 
@@ -22,6 +13,11 @@ else{
 			$RootPath = '';
 		}
 	}
+########################################################################
+    $JSFunctions = '';
+    $JScript = '';
+    $EndScript = '<script type="text/javascript" src = "'.$RootPath.'/javascripts/jquery/jquery-1.12.2.min.js"></script>';    
+    
 ################################# OWASP ################################
 header("X-XSS-Protection: 1; mode=block");
 header("X-Content-Type-Options: nosniff");
@@ -128,4 +124,3 @@ header("X-WebKit-CSP: ".CSP);
 	echo '<div id="BodyDiv">';
 	echo '<div id="BodyWrapDiv">';
 
-}

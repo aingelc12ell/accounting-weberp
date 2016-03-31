@@ -1,14 +1,5 @@
 <?php
-$modfile = implode(DIRECTORY_SEPARATOR,array(
-    ROOT_DIR, #struc for includes
-    '_mods',
-    str_replace(ROOT_DIR,'',__FILE__)
-));
-if(file_exists($modfile)){
-    include($modfile);
-}
-else{
-    die($modfile);
+
 /* $Id: footer.inc 6594 2014-03-02 23:15:39Z turbopt $*/
 
 echo '</div>'; // BodyWrapDiv
@@ -26,14 +17,27 @@ echo '<div id="FooterTimeDiv">';
 echo '</div>';
 
 echo '<div id="FooterVersionDiv">';
-echo 'webERP ' . _('version') . ' ' . $_SESSION['VersionNumber'] . ' ' . _('Copyright') . ' &copy; 2004 - ' . Date('Y'). ' <a target="_blank" href="http://www.weberp.org/weberp/doc/Manual/ManualContributors.html">weberp.org</a>';
 echo '</div>';
 
 echo '</div>'; // FooterWrapDiv
 echo '</div>'; // FooterDiv
 echo '</div>'; // Canvas
 
+echo '<!-- delayed script -->';
+####################### JAVASCRIPTS
+if(isset($EndScript)){
+    echo $EndScript;
+}
+if(isset($JScript) || isset($JSFunctions)){
+    echo '<script language="javascript">'
+            .(isset($JSFunctions) ? $JSFunctions : '')
+            ."$().ready(function(){"
+                .(isset($JScript) ? $JScript : '')
+            ."});"
+        .'</script>'
+        ;
+}
+
 echo '</body>';
 echo '</html>';
 
-}

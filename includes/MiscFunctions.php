@@ -333,8 +333,9 @@ function http_file_exists($url)  {
 function locale_number_format($Number, $DecimalPlaces=0) {
 	global $DecimalPoint;
 	global $ThousandsSeparator;
+    $Number = floatval($Number);
 	if(substr($_SESSION['Language'], 3, 2)=='IN') {// If country is India (??_IN.utf8). See Indian Numbering System in Manual, Multilanguage, Technical Overview.
-		return indian_number_format(floatval($Number),$DecimalPlaces);
+		return indian_number_format($Number,$DecimalPlaces);
 	} else {
 		if (!is_numeric($DecimalPlaces) AND $DecimalPlaces == 'Variable'){
 			$DecimalPlaces = mb_strlen($Number) - mb_strlen(intval($Number));
@@ -342,7 +343,9 @@ function locale_number_format($Number, $DecimalPlaces=0) {
 				$DecimalPlaces--;
 			}
 		}
-		return number_format(floatval($Number),$DecimalPlaces,$DecimalPoint,$ThousandsSeparator);
+		return $Number != 0
+            ? number_format($Number,$DecimalPlaces,$DecimalPoint,$ThousandsSeparator)
+            : '';
 	}
 }
 

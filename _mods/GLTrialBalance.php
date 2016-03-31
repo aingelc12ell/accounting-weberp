@@ -1,14 +1,5 @@
 <?php
-$modfile = implode(DIRECTORY_SEPARATOR,array(
-    dirname(__FILE__),
-    '_mods',
-    str_replace(dirname(__FILE__),'',__FILE__)
-));
-if(file_exists($modfile)){
-    include($modfile);
-}
-else{
-    die($modfile);
+include_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'config.php');
 /* $Id: GLTrialBalance.php 7268 2015-04-19 14:57:47Z rchacon $*/
 /* Shows the trial balance for the month and the for the period selected together with the budgeted trial balances. */
 
@@ -16,14 +7,15 @@ else{
 and shows the balance sheets as at the end of the period selected - so first off need to show the input of criteria screen
 while the user is selecting the criteria the system is posting any unposted transactions */
 
+$SummaryOnly = isset($_GET['summary']);
 
-include ('includes/session.inc');
+include (ROOT_DIR.'includes/session.inc');
 $Title = _('Trial Balance');// Screen identification.
 $ViewTopic= 'GeneralLedger';// Filename's id in ManualContents.php's TOC.
 $BookMark = 'TrialBalance';// Anchor's id in the manual's html document.
 
-include('includes/SQL_CommonFunctions.inc');
-include('includes/AccountSectionsDef.inc'); //this reads in the Accounts Sections array
+include(ROOT_DIR.'includes/SQL_CommonFunctions.inc');
+include(ROOT_DIR.'includes/AccountSectionsDef.inc'); //this reads in the Accounts Sections array
 
 
 if (isset($_POST['FromPeriod'])
@@ -38,13 +30,13 @@ if ((! isset($_POST['FromPeriod'])
 	AND ! isset($_POST['ToPeriod']))
 	OR isset($_POST['SelectADifferentPeriod'])){
 
-	include  ('includes/header.inc');
+	include  (ROOT_DIR.'includes/header.inc');
 	echo '<p class="page_title_text"><img alt="" src="'.$RootPath.'/css/'.$Theme.
 		'/images/printer.png" title="' .// Icon image.
 		_('Print Trial Balance') . '" /> ' .// Icon title.
 		_('Trial Balance') . '</p>';// Page title.
 
-	echo '<form method="post" action="' . htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8') . '">';
+	echo '<form method="post" action="' . htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8') . '" id="GLTrialBalanceFrm">';
     echo '<div>';
 	echo '<input type="hidden" name="FormID" value="' . $_SESSION['FormID'] . '" />';
 
@@ -52,7 +44,8 @@ if ((! isset($_POST['FromPeriod'])
 		/*Dates in SQL format */
 		$DefaultFromDate = Date ('Y-m-d', Mktime(0,0,0,$_SESSION['YearEnd'] + 2,0,Date('Y')));
 		$FromDate = Date($_SESSION['DefaultDateFormat'], Mktime(0,0,0,$_SESSION['YearEnd'] + 2,0,Date('Y')));
-	} else {
+	} 
+    else {
 		$DefaultFromDate = Date ('Y-m-d', Mktime(0,0,0,$_SESSION['YearEnd'] + 2,0,Date('Y')-1));
 		$FromDate = Date($_SESSION['DefaultDateFormat'], Mktime(0,0,0,$_SESSION['YearEnd'] + 2,0,Date('Y')-1));
 	}
@@ -93,7 +86,8 @@ if ((! isset($_POST['FromPeriod'])
 		</tr>';
 	if (!isset($_POST['ToPeriod']) OR $_POST['ToPeriod']==''){
 		$DefaultToPeriod = GetPeriod(date($_SESSION['DefaultDateFormat'],mktime(0,0,0,Date('m')+1,0,Date('Y'))),$db);
-	} else {
+	} 
+    else {
 		$DefaultToPeriod = $_POST['ToPeriod'];
 	}
 
@@ -118,17 +112,23 @@ if ((! isset($_POST['FromPeriod'])
 
 	echo '<div class="centre">
 			<input type="submit" name="ShowTB" value="' . _('Show Trial Balance') .'" />
+            <button id="ShowTBS">' . _('Show Summary') .'</button>
 			<input type="submit" name="PrintPDF" value="'._('PrintPDF').'" />
 		</div>';
 
+    $JScript .= "
+    $('#ShowTBS').unbind().bind('click',function(){
+        $('#GLTrialBalanceFrm').attr('action','".htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8')."?summary=true').submit();
+    });
+    ";
 /*Now do the posting while the user is thinking about the period to select */
 
-	include ('includes/GLPostings.inc');
+	include (ROOT_DIR.'includes/GLPostings.inc');
 
 } 
 else if (isset($_POST['PrintPDF'])) {
 
-	include('includes/PDFStarter.php');
+	include(ROOT_DIR.'includes/PDFStarter.php');
 
 	$pdf->addInfo('Title', _('Trial Balance') );
 	$pdf->addInfo('Subject', _('Trial Balance') );
@@ -174,26 +174,26 @@ else if (isset($_POST['PrintPDF'])) {
 	$AccountsResult = DB_query($SQL);
 	if (DB_error_no() !=0) {
 		$Title = _('Trial Balance') . ' - ' . _('Problem Report') . '....';
-		include('includes/header.inc');
+		include(ROOT_DIR.'includes/header.inc');
 		prnMsg( _('No general ledger accounts were returned by the SQL because') . ' - ' . DB_error_msg() );
 		echo '<br /><a href="' .$RootPath .'/index.php">' .  _('Back to the menu'). '</a>';
 		if ($debug==1){
 			echo '<br />' .  $SQL;
 		}
-		include('includes/footer.inc');
+		include(ROOT_DIR.'includes/footer.inc');
 		exit;
 	}
 	if (DB_num_rows($AccountsResult)==0){
 		$Title = _('Print Trial Balance Error');
-		include('includes/header.inc');
+		include(ROOT_DIR.'includes/header.inc');
 		echo '<p>';
 		prnMsg( _('There were no entries to print out for the selections specified') );
 		echo '<br /><a href="'. $RootPath.'/index.php">' .  _('Back to the menu'). '</a>';
-		include('includes/footer.inc');
+		include(ROOT_DIR.'includes/footer.inc');
 		exit;
 	}
 
-	include('includes/PDFTrialBalancePageHeader.inc');
+	include(ROOT_DIR.'includes/PDFTrialBalancePageHeader.inc');
 
 	$j = 1;
 	$Level = 1;
@@ -222,7 +222,7 @@ else if (isset($_POST['PrintPDF'])) {
 
 				// Print heading if at end of page
 				if ($YPos < ($Bottom_Margin+ (2 * $line_height))) {
-					include('includes/PDFTrialBalancePageHeader.inc');
+					include(ROOT_DIR.'includes/PDFTrialBalancePageHeader.inc');
 				}
 				if ($myrow['parentgroupname']==$ActGrp){
 					$Level++;
@@ -348,7 +348,7 @@ else if (isset($_POST['PrintPDF'])) {
 
 		// Print heading if at end of page
 		if ($YPos < ($Bottom_Margin)){
-			include('includes/PDFTrialBalancePageHeader.inc');
+			include(ROOT_DIR.'includes/PDFTrialBalancePageHeader.inc');
 		}
 
 		// Print total for each account
@@ -397,10 +397,11 @@ else if (isset($_POST['PrintPDF'])) {
 	$pdf->OutputD($_SESSION['DatabaseName'] . '_GL_Trial_Balance_' . Date('Y-m-d') . '.pdf');
 	$pdf->__destruct();
 	exit;
-} else {
+} 
+else {
 
-	include('includes/header.inc');
-	echo '<form method="post" action="' . htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8') . '">
+	include(ROOT_DIR.'includes/header.inc');
+	echo '<form method="post" action="' . htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8') . '?summary=true">
 		<div>
 			<input type="hidden" name="FormID" value="' . $_SESSION['FormID'] . '" />
 			<input type="hidden" name="FromPeriod" value="' . $_POST['FromPeriod'] . '" />
@@ -455,15 +456,30 @@ else if (isset($_POST['PrintPDF'])) {
 
 	echo '<table cellpadding="2" class="selection">';
 
-	$TableHeader = '<tr>
-						<th>' . _('Account') . '</th>
-						<th>' . _('Account Name') . '</th>
-						<th>' . _('Month Actual') . '</th>
-						<th>' . _('Month Budget') . '</th>
-						<th>' . _('Period Actual') . '</th>
-						<th>' . _('Period Budget')  . '</th>
-					</tr>';
-
+	$TableHeader = '<tr>'
+						.($SummaryOnly
+                            ? '<th rowspan="2">' . _('Account Group') . '</th>'
+                            : '<th rowspan="2">' . _('Account') . '</th>'
+                                .'<th rowspan="2">' . _('Account Name') . '</th>'
+                        )
+                        .'<th colspan="2">' . _('Month Actual') . '</th>
+						<th colspan="2">' . _('Month Budget') . '</th>
+						<th colspan="2">' . _('Period Actual') . '</th>
+						<th colspan="2">' . _('Period Budget')  . '</th>
+					</tr>'
+                    .'<tr>
+                        <th>' . _('Debit') . '</th>
+                        <th>' . _('Credit') . '</th>
+                        <th>' . _('Debit') . '</th>
+                        <th>' . _('Credit') . '</th>
+                        <th>' . _('Debit') . '</th>
+                        <th>' . _('Credit') . '</th>
+                        <th>' . _('Debit') . '</th>
+                        <th>' . _('Credit') . '</th>
+                    </tr>';
+    if($SummaryOnly){
+        echo $TableHeader;
+    }
 	$j = 1;
 	$k=0; //row colour counter
 	$ActGrp ='';
@@ -498,18 +514,69 @@ else if (isset($_POST['PrintPDF'])) {
 					$GrpPrdBudget[$Level] =0;
 					$ParentGroups[$Level]='';
 				} elseif ($ParentGroups[$Level]==$myrow['parentgroupname']) {
-					printf('<tr>
-						<td colspan="2"><i>%s ' . _('Total') . ' </i></td>
-						<td class="number"><i>%s</i></td>
-						<td class="number"><i>%s</i></td>
-						<td class="number"><i>%s</i></td>
-						<td class="number"><i>%s</i></td>
-						</tr>',
+                    $mactuald = $GrpActual[$Level] > 0 ? $GrpActual[$Level] : 0;
+                    $mactualc = $GrpActual[$Level] < 0 ? abs($GrpActual[$Level]) : 0;
+                    $mbudgetd = $GrpBudget[$Level] > 0 ? $GrpBudget[$Level] : 0;
+                    $mbudgetc = $GrpBudget[$Level] < 0 ? abs($GrpBudget[$Level]) : 0;
+                    $pactuald = $GrpPrdActual[$Level] > 0 ? $GrpPrdActual[$Level] : 0;
+                    $pactualc = $GrpPrdActual[$Level] < 0 ? abs($GrpPrdActual[$Level]) : 0;
+                    $pbudgetd = $GrpPrdBudget[$Level] > 0 ? $GrpPrdBudget[$Level] : 0;
+                    $pbudgetc = $GrpPrdBudget[$Level] < 0 ? abs($GrpPrdBudget[$Level]) : 0;
+                    printf('<tr>'
+                        .($SummaryOnly
+                            ? '<td>%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>'
+                            : '<td colspan="2"><i>%s ' . _('Total') . ' </i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>'
+                        )
+                        .'</tr>',
+                        $ParentGroups[$Level],
+                        locale_number_format($mactuald,$_SESSION['CompanyRecord']['decimalplaces']),
+                        locale_number_format($mactualc,$_SESSION['CompanyRecord']['decimalplaces']),
+                        
+                        locale_number_format($mbudgetd,$_SESSION['CompanyRecord']['decimalplaces']),
+                        locale_number_format($mbudgetc,$_SESSION['CompanyRecord']['decimalplaces']),
+                        
+                        locale_number_format($pactuald,$_SESSION['CompanyRecord']['decimalplaces']),
+                        locale_number_format($pactualc,$_SESSION['CompanyRecord']['decimalplaces']),
+                        
+                        locale_number_format($pbudgetd,$_SESSION['CompanyRecord']['decimalplaces']),
+                        locale_number_format($pbudgetc,$_SESSION['CompanyRecord']['decimalplaces'])
+                        );
+                        
+					/*printf('<tr>'
+                        .($SummaryOnly
+                            ? '<td>%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>'
+                            : '<td colspan="2"><i>%s ' . _('Total') . ' </i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>'
+                        )
+                        .'</tr>',
 						$ParentGroups[$Level],
-						locale_number_format($GrpActual[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
+                        locale_number_format($GrpActual[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
 						locale_number_format($GrpBudget[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
 						locale_number_format($GrpPrdActual[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
-						locale_number_format($GrpPrdBudget[$Level],$_SESSION['CompanyRecord']['decimalplaces']));
+						locale_number_format($GrpPrdBudget[$Level],$_SESSION['CompanyRecord']['decimalplaces']));*/
 
 					$GrpActual[$Level] =0;
 					$GrpBudget[$Level] =0;
@@ -518,19 +585,68 @@ else if (isset($_POST['PrintPDF'])) {
 					$ParentGroups[$Level]=$myrow['groupname'];
 				} else {
 					do {
-						printf('<tr>
-							<td colspan="2"><i>%s ' . _('Total') . ' </i></td>
-							<td class="number"><i>%s</i></td>
-							<td class="number"><i>%s</i></td>
-							<td class="number"><i>%s</i></td>
-							<td class="number"><i>%s</i></td>
-							</tr>',
+						/*printf('<tr>'
+                        .($SummaryOnly
+                            ? '<td>%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>'
+                            : '<td colspan="2"><i>%s ' . _('Total') . ' </i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>'
+                        )
+                        .'</tr>',
 							$ParentGroups[$Level],
 							locale_number_format($GrpActual[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
 							locale_number_format($GrpBudget[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
 							locale_number_format($GrpPrdActual[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
-							locale_number_format($GrpPrdBudget[$Level],$_SESSION['CompanyRecord']['decimalplaces']));
-
+							locale_number_format($GrpPrdBudget[$Level],$_SESSION['CompanyRecord']['decimalplaces']));*/
+                        $mactuald = $GrpActual[$Level] > 0 ? $GrpActual[$Level] : 0;
+                        $mactualc = $GrpActual[$Level] < 0 ? abs($GrpActual[$Level]) : 0;
+                        $mbudgetd = $GrpBudget[$Level] > 0 ? $GrpBudget[$Level] : 0;
+                        $mbudgetc = $GrpBudget[$Level] < 0 ? abs($GrpBudget[$Level]) : 0;
+                        $pactuald = $GrpPrdActual[$Level] > 0 ? $GrpPrdActual[$Level] : 0;
+                        $pactualc = $GrpPrdActual[$Level] < 0 ? abs($GrpPrdActual[$Level]) : 0;
+                        $pbudgetd = $GrpPrdBudget[$Level] > 0 ? $GrpPrdBudget[$Level] : 0;
+                        $pbudgetc = $GrpPrdBudget[$Level] < 0 ? abs($GrpPrdBudget[$Level]) : 0;
+                        printf('<tr>'
+                            .($SummaryOnly
+                                ? '<td>%s</td>
+                                    <td class="number">%s</td>
+                                    <td class="number">%s</td>
+                                    <td class="number">%s</td>
+                                    <td class="number">%s</td>
+                                    <td class="number">%s</td>
+                                    <td class="number">%s</td>
+                                    <td class="number">%s</td>
+                                    <td class="number">%s</td>'
+                                : '<td colspan="2"><i>%s ' . _('Total') . ' </i></td>
+                                    <td class="number"><i>%s</i></td>
+                                    <td class="number"><i>%s</i></td>
+                                    <td class="number"><i>%s</i></td>
+                                    <td class="number"><i>%s</i></td>
+                                    <td class="number"><i>%s</i></td>
+                                    <td class="number"><i>%s</i></td>
+                                    <td class="number"><i>%s</i></td>
+                                    <td class="number"><i>%s</i></td>'
+                            )
+                            .'</tr>',
+                            $ParentGroups[$Level],
+                            locale_number_format($mactuald,$_SESSION['CompanyRecord']['decimalplaces']),
+                            locale_number_format($mactualc,$_SESSION['CompanyRecord']['decimalplaces']),
+                            
+                            locale_number_format($mbudgetd,$_SESSION['CompanyRecord']['decimalplaces']),
+                            locale_number_format($mbudgetc,$_SESSION['CompanyRecord']['decimalplaces']),
+                            
+                            locale_number_format($pactuald,$_SESSION['CompanyRecord']['decimalplaces']),
+                            locale_number_format($pactualc,$_SESSION['CompanyRecord']['decimalplaces']),
+                            
+                            locale_number_format($pbudgetd,$_SESSION['CompanyRecord']['decimalplaces']),
+                            locale_number_format($pbudgetc,$_SESSION['CompanyRecord']['decimalplaces'])
+                            );
 						$GrpActual[$Level] =0;
 						$GrpBudget[$Level] =0;
 						$GrpPrdActual[$Level] =0;
@@ -542,19 +658,68 @@ else if (isset($_POST['PrintPDF'])) {
 					} while ($Level>0 AND $myrow['groupname']!=$ParentGroups[$Level]);
 
 					if ($Level>0){
-						printf('<tr>
-						<td colspan="2"><i>%s ' . _('Total') . ' </i></td>
-						<td class="number"><i>%s</i></td>
-						<td class="number"><i>%s</i></td>
-						<td class="number"><i>%s</i></td>
-						<td class="number"><i>%s</i></td>
-						</tr>',
+						/*printf('<tr>'
+                        .($SummaryOnly
+                            ? '<td>%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>'
+                            : '<td colspan="2"><i>%s ' . _('Total') . ' </i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>'
+                        )
+                        .'</tr>',
 						$ParentGroups[$Level],
 						locale_number_format($GrpActual[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
 						locale_number_format($GrpBudget[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
 						locale_number_format($GrpPrdActual[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
-						locale_number_format($GrpPrdBudget[$Level],$_SESSION['CompanyRecord']['decimalplaces']));
-
+						locale_number_format($GrpPrdBudget[$Level],$_SESSION['CompanyRecord']['decimalplaces']));*/
+                        $mactuald = $GrpActual[$Level] > 0 ? $GrpActual[$Level] : 0;
+                        $mactualc = $GrpActual[$Level] < 0 ? abs($GrpActual[$Level]) : 0;
+                        $mbudgetd = $GrpBudget[$Level] > 0 ? $GrpBudget[$Level] : 0;
+                        $mbudgetc = $GrpBudget[$Level] < 0 ? abs($GrpBudget[$Level]) : 0;
+                        $pactuald = $GrpPrdActual[$Level] > 0 ? $GrpPrdActual[$Level] : 0;
+                        $pactualc = $GrpPrdActual[$Level] < 0 ? abs($GrpPrdActual[$Level]) : 0;
+                        $pbudgetd = $GrpPrdBudget[$Level] > 0 ? $GrpPrdBudget[$Level] : 0;
+                        $pbudgetc = $GrpPrdBudget[$Level] < 0 ? abs($GrpPrdBudget[$Level]) : 0;
+                        printf('<tr>'
+                            .($SummaryOnly
+                                ? '<td>%s</td>
+                                    <td class="number">%s</td>
+                                    <td class="number">%s</td>
+                                    <td class="number">%s</td>
+                                    <td class="number">%s</td>
+                                    <td class="number">%s</td>
+                                    <td class="number">%s</td>
+                                    <td class="number">%s</td>
+                                    <td class="number">%s</td>'
+                                : '<td colspan="2"><i>%s ' . _('Total') . ' </i></td>
+                                    <td class="number"><i>%s</i></td>
+                                    <td class="number"><i>%s</i></td>
+                                    <td class="number"><i>%s</i></td>
+                                    <td class="number"><i>%s</i></td>
+                                    <td class="number"><i>%s</i></td>
+                                    <td class="number"><i>%s</i></td>
+                                    <td class="number"><i>%s</i></td>
+                                    <td class="number"><i>%s</i></td>'
+                            )
+                            .'</tr>',
+                            $ParentGroups[$Level],
+                            locale_number_format($mactuald,$_SESSION['CompanyRecord']['decimalplaces']),
+                            locale_number_format($mactualc,$_SESSION['CompanyRecord']['decimalplaces']),
+                            
+                            locale_number_format($mbudgetd,$_SESSION['CompanyRecord']['decimalplaces']),
+                            locale_number_format($mbudgetc,$_SESSION['CompanyRecord']['decimalplaces']),
+                            
+                            locale_number_format($pactuald,$_SESSION['CompanyRecord']['decimalplaces']),
+                            locale_number_format($pactualc,$_SESSION['CompanyRecord']['decimalplaces']),
+                            
+                            locale_number_format($pbudgetd,$_SESSION['CompanyRecord']['decimalplaces']),
+                            locale_number_format($pbudgetc,$_SESSION['CompanyRecord']['decimalplaces'])
+                            );
 						$GrpActual[$Level] =0;
 						$GrpBudget[$Level] =0;
 						$GrpPrdActual[$Level] =0;
@@ -567,19 +732,21 @@ else if (isset($_POST['PrintPDF'])) {
 			}
 			$ParentGroups[$Level]=$myrow['groupname'];
 			$ActGrp = $myrow['groupname'];
-			printf('<tr>
-						<td colspan="6"><h2>%s</h2></td>
-					</tr>',
-					$myrow['groupname']);
-			echo $TableHeader;
+            if(!$SummaryOnly){
+			    printf('<tr>
+						    <td colspan="6"><h2>%s</h2></td>
+					    </tr>',
+					    $myrow['groupname']);
+			    echo $TableHeader;
+            }
 			$j++;
 		}
 
 		if ($k==1){
-			echo '<tr class="EvenTableRows">';
+			echo $SummaryOnly ? '' : '<tr class="EvenTableRows">';
 			$k=0;
 		} else {
-			echo '<tr class="OddTableRows">';
+			echo $SummaryOnly ? '' : '<tr class="OddTableRows">';
 			$k++;
 		}
 		/*MonthActual, MonthBudget, FirstPrdBFwd, FirstPrdBudgetBFwd, LastPrdBudgetCFwd, LastPrdCFwd */
@@ -595,7 +762,8 @@ else if (isset($_POST['PrintPDF'])) {
 			$MonthProfitLoss += $myrow['monthactual'];
 			$MonthBudgetProfitLoss += $myrow['monthbudget'];
 			$BFwdProfitLoss += $myrow['firstprdbfwd'];
-		} else { /*PandL ==0 its a balance sheet account */
+		} 
+        else { /*PandL ==0 its a balance sheet account */
 			if ($myrow['accountcode']==$RetainedEarningsAct){
 				$AccountPeriodActual = $BFwdProfitLoss + $myrow['lastprdcfwd'];
 				$AccountPeriodBudget = $BFwdProfitLoss + $myrow['lastprdbudgetcfwd'] - $myrow['firstprdbudgetbfwd'];
@@ -629,21 +797,54 @@ else if (isset($_POST['PrintPDF'])) {
 		$CheckPeriodBudget += $AccountPeriodBudget;
 
 		$ActEnquiryURL = '<a href="'. $RootPath . '/GLAccountInquiry.php?FromPeriod=' . $_POST['FromPeriod'] . '&amp;ToPeriod=' . $_POST['ToPeriod'] . '&amp;Account=' . $myrow['accountcode'] . '&amp;Show=Yes">' . $myrow['accountcode'] . '</a>';
-
-		printf('<td>%s</td>
-				<td>%s</td>
-				<td class="number">%s</td>
-				<td class="number">%s</td>
-				<td class="number">%s</td>
-				<td class="number">%s</td>
-				</tr>',
-				$ActEnquiryURL,
-				htmlspecialchars($myrow['accountname'], ENT_QUOTES,'UTF-8', false),
-				locale_number_format($myrow['monthactual'],$_SESSION['CompanyRecord']['decimalplaces']),
-				locale_number_format($myrow['monthbudget'],$_SESSION['CompanyRecord']['decimalplaces']),
-				locale_number_format($AccountPeriodActual,$_SESSION['CompanyRecord']['decimalplaces']),
-				locale_number_format($AccountPeriodBudget,$_SESSION['CompanyRecord']['decimalplaces']));
-
+        if(!$SummaryOnly){
+		    /*printf('<td>%s</td>
+				    <td>%s</td>
+				    <td class="number">%s</td>
+				    <td class="number">%s</td>
+				    <td class="number">%s</td>
+				    <td class="number">%s</td>
+				    </tr>',
+				    $ActEnquiryURL,
+				    htmlspecialchars($myrow['accountname'], ENT_QUOTES,'UTF-8', false),
+				    locale_number_format($myrow['monthactual'],$_SESSION['CompanyRecord']['decimalplaces']),
+				    locale_number_format($myrow['monthbudget'],$_SESSION['CompanyRecord']['decimalplaces']),
+				    locale_number_format($AccountPeriodActual,$_SESSION['CompanyRecord']['decimalplaces']),
+				    locale_number_format($AccountPeriodBudget,$_SESSION['CompanyRecord']['decimalplaces']));*/
+            $mad = $myrow['monthactual'] > 0 ? $myrow['monthactual'] : 0;
+            $mac = $myrow['monthactual'] < 0 ? abs($myrow['monthactual']) : 0;
+            $mbd = $myrow['monthbudget'] > 0 ? $myrow['monthbudget'] : 0;
+            $mbc = $myrow['monthbudget'] < 0 ? abs($myrow['monthbudget']) : 0;
+            $pad = $AccountPeriodActual > 0 ? $AccountPeriodActual : 0;
+            $pac = $AccountPeriodActual < 0 ? abs($AccountPeriodActual) : 0;
+            $pbd = $AccountPeriodBudget > 0 ? $AccountPeriodBudget : 0;
+            $pdc = $AccountPeriodBudget < 0 ? abs($AccountPeriodBudget) : 0;
+            printf('<td>%s</td>
+                    <td>%s</td>
+                    <td class="number">%s</td>
+                    <td class="number">%s</td>
+                    <td class="number">%s</td>
+                    <td class="number">%s</td>
+                    <td class="number">%s</td>
+                    <td class="number">%s</td>
+                    <td class="number">%s</td>
+                    <td class="number">%s</td>
+                    </tr>',
+                    $ActEnquiryURL,
+                    htmlspecialchars($myrow['accountname'], ENT_QUOTES,'UTF-8', false),
+                    locale_number_format($mad,$_SESSION['CompanyRecord']['decimalplaces']),
+                    locale_number_format($mac,$_SESSION['CompanyRecord']['decimalplaces']),
+                    
+                    locale_number_format($mbd,$_SESSION['CompanyRecord']['decimalplaces']),
+                    locale_number_format($mbc,$_SESSION['CompanyRecord']['decimalplaces']),
+                    
+                    locale_number_format($pad,$_SESSION['CompanyRecord']['decimalplaces']),
+                    locale_number_format($pac,$_SESSION['CompanyRecord']['decimalplaces']),
+                    
+                    locale_number_format($pbd,$_SESSION['CompanyRecord']['decimalplaces']),
+                    locale_number_format($pbc,$_SESSION['CompanyRecord']['decimalplaces'])
+                    );
+        }
 		$j++;
 	}
 	//end of while loop
@@ -654,13 +855,20 @@ else if (isset($_POST['PrintPDF'])) {
 			$Level++;
 			$ParentGroups[$Level]=$myrow['groupname'];
 		} elseif ($ParentGroups[$Level]==$myrow['parentgroupname']) {
-			printf('<tr>
-					<td colspan="2"><i>%s ' . _('Total') . ' </i></td>
-					<td class="number"><i>%s</i></td>
-					<td class="number"><i>%s</i></td>
-					<td class="number"><i>%s</i></td>
-					<td class="number"><i>%s</i></td>
-					</tr>',
+			printf('<tr>'
+                        .($SummaryOnly
+                            ? '<td>%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>'
+                            : '<td colspan="2"><i>%s ' . _('Total') . ' </i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>'
+                        )
+                        .'</tr>',
 					$ParentGroups[$Level],
 					locale_number_format($GrpActual[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
 					locale_number_format($GrpBudget[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
@@ -674,13 +882,20 @@ else if (isset($_POST['PrintPDF'])) {
 			$ParentGroups[$Level]=$myrow['groupname'];
 		} else {
 			do {
-				printf('<tr>
-						<td colspan="2"><i>%s ' . _('Total') . ' </i></td>
-						<td class="number"><i>%s</i></td>
-						<td class="number"><i>%s</i></td>
-						<td class="number"><i>%s</i></td>
-						<td class="number"><i>%s</i></td>
-						</tr>',
+				printf('<tr>'
+                        .($SummaryOnly
+                            ? '<td>%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>'
+                            : '<td colspan="2"><i>%s ' . _('Total') . ' </i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>'
+                        )
+                        .'</tr>',
 						$ParentGroups[$Level],
 						locale_number_format($GrpActual[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
 						locale_number_format($GrpBudget[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
@@ -698,13 +913,20 @@ else if (isset($_POST['PrintPDF'])) {
 			} while (isset($ParentGroups[$Level]) AND ($myrow['groupname']!=$ParentGroups[$Level] AND $Level>0));
 
 			if ($Level >0){
-				printf('<tr>
-						<td colspan="2"><i>%s ' . _('Total') . ' </i></td>
-						<td class="number"><i>%s</i></td>
-						<td class="number"><i>%s</i></td>
-						<td class="number"><i>%s</i></td>
-						<td class="number"><i>%s</i></td>
-						</tr>',
+				printf('<tr>'
+                        .($SummaryOnly
+                            ? '<td>%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>'
+                            : '<td colspan="2"><i>%s ' . _('Total') . ' </i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>'
+                        )
+                        .'</tr>',
 						$ParentGroups[$Level],
 						locale_number_format($GrpActual[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
 						locale_number_format($GrpBudget[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
@@ -724,8 +946,8 @@ else if (isset($_POST['PrintPDF'])) {
 
 
 
-	printf('<tr style="background-color:#ffffff">
-				<td colspan="2"><b>' . _('Check Totals') . '</b></td>
+	/*printf('<tr style="background-color:#ffffff">
+				<td '.($SummaryOnly ? '' : ' colspan="2"').'><b>' . _('Check Totals') . '</b></td>
 				<td class="number">%s</td>
 				<td class="number">%s</td>
 				<td class="number">%s</td>
@@ -734,7 +956,38 @@ else if (isset($_POST['PrintPDF'])) {
 			locale_number_format($CheckMonth,$_SESSION['CompanyRecord']['decimalplaces']),
 			locale_number_format($CheckBudgetMonth,$_SESSION['CompanyRecord']['decimalplaces']),
 			locale_number_format($CheckPeriodActual,$_SESSION['CompanyRecord']['decimalplaces']),
-			locale_number_format($CheckPeriodBudget,$_SESSION['CompanyRecord']['decimalplaces']));
+			locale_number_format($CheckPeriodBudget,$_SESSION['CompanyRecord']['decimalplaces']));*/
+    $mtd = $CheckMonth > 0 ? $CheckMonth : 0;
+    $mtc = $CheckMonth < 0 ? abs($CheckMonth) : 0;
+    $mbd = $CheckBudgetMonth > 0 ? $CheckBudgetMonth : 0;
+    $mbc = $CheckBudgetMonth < 0 ? abs($CheckBudgetMonth) : 0;
+    $pad = $CheckPeriodActual > 0 ? $CheckPeriodActual : 0;
+    $pac = $CheckPeriodActual < 0 ? abs($CheckPeriodActual) : 0;
+    $pbd = $CheckPeriodBudget > 0 ? $CheckPeriodBudget : 0;
+    $pbc = $CheckPeriodBudget < 0 ? abs($CheckPeriodBudget) : 0;
+    printf('<tr style="background-color:#ffffff">
+                <td '.($SummaryOnly ? '' : ' colspan="2"').'><b>' . _('Check Totals') . '</b></td>
+                <td class="number">%s</td>
+                <td class="number">%s</td>
+                <td class="number">%s</td>
+                <td class="number">%s</td>
+                <td class="number">%s</td>
+                <td class="number">%s</td>
+                <td class="number">%s</td>
+                <td class="number">%s</td>
+            </tr>',
+            locale_number_format($mtd,$_SESSION['CompanyRecord']['decimalplaces']),
+            locale_number_format($mtc,$_SESSION['CompanyRecord']['decimalplaces']),
+            
+            locale_number_format($mbd,$_SESSION['CompanyRecord']['decimalplaces']),
+            locale_number_format($mbc,$_SESSION['CompanyRecord']['decimalplaces']),
+            
+            locale_number_format($pad,$_SESSION['CompanyRecord']['decimalplaces']),
+            locale_number_format($pac,$_SESSION['CompanyRecord']['decimalplaces']),
+            
+            locale_number_format($pbd,$_SESSION['CompanyRecord']['decimalplaces']),
+            locale_number_format($pbc,$_SESSION['CompanyRecord']['decimalplaces'])
+            );
 
 	echo '</table><br />';
 
@@ -749,6 +1002,6 @@ else if (isset($_POST['PrintPDF'])) {
 }
 echo '</div>
 	</form>';
-include('includes/footer.inc');
+include(ROOT_DIR.'includes/footer.inc');
 
-} #end
+
