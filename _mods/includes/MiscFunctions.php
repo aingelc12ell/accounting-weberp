@@ -1,15 +1,4 @@
 <?php
-
-$modfile = implode(DIRECTORY_SEPARATOR,array(
-    ROOT_DIR, #struc for includes
-    '_mods',
-    str_replace(ROOT_DIR,'',__FILE__)
-));
-if(file_exists($modfile)){
-    include($modfile);
-}
-else{
-    die($modfile);
 /* $Id: MiscFunctions.php 7097 2015-01-24 17:32:11Z rchacon $*/
 
 /*  ******************************************  */
@@ -354,7 +343,9 @@ function locale_number_format($Number, $DecimalPlaces=0) {
 				$DecimalPlaces--;
 			}
 		}
-		return number_format($Number,$DecimalPlaces,$DecimalPoint,$ThousandsSeparator);
+		return $Number != 0
+            ? number_format($Number,$DecimalPlaces,$DecimalPoint,$ThousandsSeparator)
+            : '';
 	}
 }
 
@@ -463,4 +454,3 @@ function ChangeFieldInTable($TableName, $FieldName, $OldValue, $NewValue, $db){
 	echo ' ... ' . _('completed');
 }
 
-}

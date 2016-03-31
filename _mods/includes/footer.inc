@@ -29,7 +29,7 @@ if(isset($EndScript)){
     echo $EndScript;
 }
 if(isset($JScript) || isset($JSFunctions)){
-    echo '<script language="javascript">'
+    echo '<script language="javascript" type="text/javascript">'
             .(isset($JSFunctions) ? $JSFunctions : '')
             ."$().ready(function(){"
                 .(isset($JScript) ? $JScript : '')

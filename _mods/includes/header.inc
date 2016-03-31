@@ -15,7 +15,7 @@
 	}
 ########################################################################
     $JSFunctions = '';
-    $JScript = '';
+    $JScript = "console.log('-initiated--');";
     $EndScript = '<script type="text/javascript" src = "'.$RootPath.'/javascripts/jquery/jquery-1.12.2.min.js"></script>';    
     
 ################################# OWASP ################################

@@ -401,7 +401,7 @@ else if (isset($_POST['PrintPDF'])) {
 else {
 
 	include(ROOT_DIR.'includes/header.inc');
-	echo '<form method="post" action="' . htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8') . '?summary=true">
+	echo '<form method="post" action="' . htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8') . '">
 		<div>
 			<input type="hidden" name="FormID" value="' . $_SESSION['FormID'] . '" />
 			<input type="hidden" name="FromPeriod" value="' . $_POST['FromPeriod'] . '" />
@@ -516,10 +516,13 @@ else {
 				} elseif ($ParentGroups[$Level]==$myrow['parentgroupname']) {
                     $mactuald = $GrpActual[$Level] > 0 ? $GrpActual[$Level] : 0;
                     $mactualc = $GrpActual[$Level] < 0 ? abs($GrpActual[$Level]) : 0;
+                    
                     $mbudgetd = $GrpBudget[$Level] > 0 ? $GrpBudget[$Level] : 0;
                     $mbudgetc = $GrpBudget[$Level] < 0 ? abs($GrpBudget[$Level]) : 0;
+                    
                     $pactuald = $GrpPrdActual[$Level] > 0 ? $GrpPrdActual[$Level] : 0;
                     $pactualc = $GrpPrdActual[$Level] < 0 ? abs($GrpPrdActual[$Level]) : 0;
+                    
                     $pbudgetd = $GrpPrdBudget[$Level] > 0 ? $GrpPrdBudget[$Level] : 0;
                     $pbudgetc = $GrpPrdBudget[$Level] < 0 ? abs($GrpPrdBudget[$Level]) : 0;
                     printf('<tr>'
@@ -606,10 +609,13 @@ else {
 							locale_number_format($GrpPrdBudget[$Level],$_SESSION['CompanyRecord']['decimalplaces']));*/
                         $mactuald = $GrpActual[$Level] > 0 ? $GrpActual[$Level] : 0;
                         $mactualc = $GrpActual[$Level] < 0 ? abs($GrpActual[$Level]) : 0;
+                        
                         $mbudgetd = $GrpBudget[$Level] > 0 ? $GrpBudget[$Level] : 0;
                         $mbudgetc = $GrpBudget[$Level] < 0 ? abs($GrpBudget[$Level]) : 0;
+                        
                         $pactuald = $GrpPrdActual[$Level] > 0 ? $GrpPrdActual[$Level] : 0;
                         $pactualc = $GrpPrdActual[$Level] < 0 ? abs($GrpPrdActual[$Level]) : 0;
+                        
                         $pbudgetd = $GrpPrdBudget[$Level] > 0 ? $GrpPrdBudget[$Level] : 0;
                         $pbudgetc = $GrpPrdBudget[$Level] < 0 ? abs($GrpPrdBudget[$Level]) : 0;
                         printf('<tr>'
@@ -679,10 +685,13 @@ else {
 						locale_number_format($GrpPrdBudget[$Level],$_SESSION['CompanyRecord']['decimalplaces']));*/
                         $mactuald = $GrpActual[$Level] > 0 ? $GrpActual[$Level] : 0;
                         $mactualc = $GrpActual[$Level] < 0 ? abs($GrpActual[$Level]) : 0;
+                        
                         $mbudgetd = $GrpBudget[$Level] > 0 ? $GrpBudget[$Level] : 0;
                         $mbudgetc = $GrpBudget[$Level] < 0 ? abs($GrpBudget[$Level]) : 0;
+                        
                         $pactuald = $GrpPrdActual[$Level] > 0 ? $GrpPrdActual[$Level] : 0;
                         $pactualc = $GrpPrdActual[$Level] < 0 ? abs($GrpPrdActual[$Level]) : 0;
+                        
                         $pbudgetd = $GrpPrdBudget[$Level] > 0 ? $GrpPrdBudget[$Level] : 0;
                         $pbudgetc = $GrpPrdBudget[$Level] < 0 ? abs($GrpPrdBudget[$Level]) : 0;
                         printf('<tr>'
@@ -813,12 +822,15 @@ else {
 				    locale_number_format($AccountPeriodBudget,$_SESSION['CompanyRecord']['decimalplaces']));*/
             $mad = $myrow['monthactual'] > 0 ? $myrow['monthactual'] : 0;
             $mac = $myrow['monthactual'] < 0 ? abs($myrow['monthactual']) : 0;
+            
             $mbd = $myrow['monthbudget'] > 0 ? $myrow['monthbudget'] : 0;
             $mbc = $myrow['monthbudget'] < 0 ? abs($myrow['monthbudget']) : 0;
+            
             $pad = $AccountPeriodActual > 0 ? $AccountPeriodActual : 0;
             $pac = $AccountPeriodActual < 0 ? abs($AccountPeriodActual) : 0;
+            
             $pbd = $AccountPeriodBudget > 0 ? $AccountPeriodBudget : 0;
-            $pdc = $AccountPeriodBudget < 0 ? abs($AccountPeriodBudget) : 0;
+            $pbc = $AccountPeriodBudget < 0 ? abs($AccountPeriodBudget) : 0;
             printf('<td>%s</td>
                     <td>%s</td>
                     <td class="number">%s</td>
@@ -855,7 +867,7 @@ else {
 			$Level++;
 			$ParentGroups[$Level]=$myrow['groupname'];
 		} elseif ($ParentGroups[$Level]==$myrow['parentgroupname']) {
-			printf('<tr>'
+			/*printf('<tr>'
                         .($SummaryOnly
                             ? '<td>%s</td>
                                 <td class="number">%s</td>
@@ -873,7 +885,47 @@ else {
 					locale_number_format($GrpActual[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
 					locale_number_format($GrpBudget[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
 					locale_number_format($GrpPrdActual[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
-					locale_number_format($GrpPrdBudget[$Level],$_SESSION['CompanyRecord']['decimalplaces']));
+					locale_number_format($GrpPrdBudget[$Level],$_SESSION['CompanyRecord']['decimalplaces']));*/
+            $mad = $GrpActual[$Level] > 0 ? $GrpActual[$Level] : 0;
+            $mac = $GrpActual[$Level] < 0 ? abs($GrpActual[$Level]) : 0;
+            $mbd = $GrpBudget[$Level] > 0 ? $GrpBudget[$Level] : 0;
+            $mbc = $GrpBudget[$Level] < 0 ? abs($GrpBudget[$Level]) : 0;
+            $pad = $GrpPrdActual[$Level] > 0 ? $GrpPrdActual[$Level] : 0;
+            $pac = $GrpPrdActual[$Level] < 0 ? abs($GrpPrdActual[$Level]) : 0;
+            $pbd = $GrpPrdBudget[$Level] > 0 ? $GrpPrdBudget[$Level] : 0;
+            $pbc = $GrpPrdBudget[$Level] < 0 ? abs($GrpPrdBudget[$Level]) : 0;
+            printf('<tr>'
+                        .($SummaryOnly
+                            ? '<td>%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>'
+                            : '<td colspan="2"><i>%s ' . _('Total') . ' </i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>'
+                        )
+                        .'</tr>',
+                    $ParentGroups[$Level],
+                    locale_number_format($mad,$_SESSION['CompanyRecord']['decimalplaces']),
+                    locale_number_format($mac,$_SESSION['CompanyRecord']['decimalplaces']),
+                    locale_number_format($mbd,$_SESSION['CompanyRecord']['decimalplaces']),
+                    locale_number_format($mbc,$_SESSION['CompanyRecord']['decimalplaces']),
+                    locale_number_format($pad,$_SESSION['CompanyRecord']['decimalplaces']),
+                    locale_number_format($pac,$_SESSION['CompanyRecord']['decimalplaces']),
+                    locale_number_format($pbd,$_SESSION['CompanyRecord']['decimalplaces']),
+                    locale_number_format($pbc,$_SESSION['CompanyRecord']['decimalplaces'])
+                    );
 
 			$GrpActual[$Level] =0;
 			$GrpBudget[$Level] =0;
@@ -882,7 +934,7 @@ else {
 			$ParentGroups[$Level]=$myrow['groupname'];
 		} else {
 			do {
-				printf('<tr>'
+				/*printf('<tr>'
                         .($SummaryOnly
                             ? '<td>%s</td>
                                 <td class="number">%s</td>
@@ -900,7 +952,47 @@ else {
 						locale_number_format($GrpActual[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
 						locale_number_format($GrpBudget[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
 						locale_number_format($GrpPrdActual[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
-						locale_number_format($GrpPrdBudget[$Level],$_SESSION['CompanyRecord']['decimalplaces']));
+						locale_number_format($GrpPrdBudget[$Level],$_SESSION['CompanyRecord']['decimalplaces']));*/
+                $mad = $GrpActual[$Level] > 0 ? $GrpActual[$Level] : 0;
+            $mac = $GrpActual[$Level] < 0 ? abs($GrpActual[$Level]) : 0;
+            $mbd = $GrpBudget[$Level] > 0 ? $GrpBudget[$Level] : 0;
+            $mbc = $GrpBudget[$Level] < 0 ? abs($GrpBudget[$Level]) : 0;
+            $pad = $GrpPrdActual[$Level] > 0 ? $GrpPrdActual[$Level] : 0;
+            $pac = $GrpPrdActual[$Level] < 0 ? abs($GrpPrdActual[$Level]) : 0;
+            $pbd = $GrpPrdBudget[$Level] > 0 ? $GrpPrdBudget[$Level] : 0;
+            $pbc = $GrpPrdBudget[$Level] < 0 ? abs($GrpPrdBudget[$Level]) : 0;
+            printf('<tr>'
+                        .($SummaryOnly
+                            ? '<td>%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>
+                                <td class="number">%s</td>'
+                            : '<td colspan="2"><i>%s ' . _('Total') . ' </i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>
+                                <td class="number"><i>%s</i></td>'
+                        )
+                        .'</tr>',
+                    $ParentGroups[$Level],
+                    locale_number_format($mad,$_SESSION['CompanyRecord']['decimalplaces']),
+                    locale_number_format($mac,$_SESSION['CompanyRecord']['decimalplaces']),
+                    locale_number_format($mbd,$_SESSION['CompanyRecord']['decimalplaces']),
+                    locale_number_format($mbc,$_SESSION['CompanyRecord']['decimalplaces']),
+                    locale_number_format($pad,$_SESSION['CompanyRecord']['decimalplaces']),
+                    locale_number_format($pac,$_SESSION['CompanyRecord']['decimalplaces']),
+                    locale_number_format($pbd,$_SESSION['CompanyRecord']['decimalplaces']),
+                    locale_number_format($pbc,$_SESSION['CompanyRecord']['decimalplaces'])
+                    );
 
 				$GrpActual[$Level] =0;
 				$GrpBudget[$Level] =0;
@@ -913,7 +1005,7 @@ else {
 			} while (isset($ParentGroups[$Level]) AND ($myrow['groupname']!=$ParentGroups[$Level] AND $Level>0));
 
 			if ($Level >0){
-				printf('<tr>'
+				/*printf('<tr>'
                         .($SummaryOnly
                             ? '<td>%s</td>
                                 <td class="number">%s</td>
@@ -931,7 +1023,50 @@ else {
 						locale_number_format($GrpActual[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
 						locale_number_format($GrpBudget[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
 						locale_number_format($GrpPrdActual[$Level],$_SESSION['CompanyRecord']['decimalplaces']),
-						locale_number_format($GrpPrdBudget[$Level],$_SESSION['CompanyRecord']['decimalplaces']));
+						locale_number_format($GrpPrdBudget[$Level],$_SESSION['CompanyRecord']['decimalplaces']));*/
+                $mad = $GrpActual[$Level] > 0 ? $GrpActual[$Level] : 0;
+                $mac = $GrpActual[$Level] < 0 ? abs($GrpActual[$Level]) : 0;
+                
+                $mbd = $GrpBudget[$Level] > 0 ? $GrpBudget[$Level] : 0;
+                $mbc = $GrpBudget[$Level] < 0 ? abs($GrpBudget[$Level]) : 0;
+                
+                $pad = $GrpPrdActual[$Level] > 0 ? $GrpPrdActual[$Level] : 0;
+                $pac = $GrpPrdActual[$Level] < 0 ? abs($GrpPrdActual[$Level]) : 0;
+                
+                $pbd = $GrpPrdBudget[$Level] > 0 ? $GrpPrdBudget[$Level] : 0;
+                $pbc = $GrpPrdBudget[$Level] < 0 ? abs($GrpPrdBudget[$Level]) : 0;
+                printf('<tr>'
+                            .($SummaryOnly
+                                ? '<td>%s</td>
+                                    <td class="number">%s</td>
+                                    <td class="number">%s</td>
+                                    <td class="number">%s</td>
+                                    <td class="number">%s</td>
+                                    <td class="number">%s</td>
+                                    <td class="number">%s</td>
+                                    <td class="number">%s</td>
+                                    <td class="number">%s</td>'
+                                : '<td colspan="2"><i>%s ' . _('Total') . ' </i></td>
+                                    <td class="number"><i>%s</i></td>
+                                    <td class="number"><i>%s</i></td>
+                                    <td class="number"><i>%s</i></td>
+                                    <td class="number"><i>%s</i></td>
+                                    <td class="number"><i>%s</i></td>
+                                    <td class="number"><i>%s</i></td>
+                                    <td class="number"><i>%s</i></td>
+                                    <td class="number"><i>%s</i></td>'
+                            )
+                            .'</tr>',
+                        $ParentGroups[$Level],
+                        locale_number_format($mad,$_SESSION['CompanyRecord']['decimalplaces']),
+                        locale_number_format($mac,$_SESSION['CompanyRecord']['decimalplaces']),
+                        locale_number_format($mbd,$_SESSION['CompanyRecord']['decimalplaces']),
+                        locale_number_format($mbc,$_SESSION['CompanyRecord']['decimalplaces']),
+                        locale_number_format($pad,$_SESSION['CompanyRecord']['decimalplaces']),
+                        locale_number_format($pac,$_SESSION['CompanyRecord']['decimalplaces']),
+                        locale_number_format($pbd,$_SESSION['CompanyRecord']['decimalplaces']),
+                        locale_number_format($pbc,$_SESSION['CompanyRecord']['decimalplaces'])
+                        );
 
 				$GrpActual[$Level] =0;
 				$GrpBudget[$Level] =0;
@@ -959,10 +1094,13 @@ else {
 			locale_number_format($CheckPeriodBudget,$_SESSION['CompanyRecord']['decimalplaces']));*/
     $mtd = $CheckMonth > 0 ? $CheckMonth : 0;
     $mtc = $CheckMonth < 0 ? abs($CheckMonth) : 0;
+    
     $mbd = $CheckBudgetMonth > 0 ? $CheckBudgetMonth : 0;
     $mbc = $CheckBudgetMonth < 0 ? abs($CheckBudgetMonth) : 0;
+    
     $pad = $CheckPeriodActual > 0 ? $CheckPeriodActual : 0;
     $pac = $CheckPeriodActual < 0 ? abs($CheckPeriodActual) : 0;
+    
     $pbd = $CheckPeriodBudget > 0 ? $CheckPeriodBudget : 0;
     $pbc = $CheckPeriodBudget < 0 ? abs($CheckPeriodBudget) : 0;
     printf('<tr style="background-color:#ffffff">
