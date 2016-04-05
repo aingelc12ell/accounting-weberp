@@ -213,11 +213,11 @@ pip-log.txt
 
 # SELF
 /_mods/config/
-companies/
-/XHRequests/
-/javascripts/jquery/
-/javascripts/script.js
-/css/custom.css
+companies
+XHRequests
+javascripts/jquery
+javascripts/script.js
+css/custom.css
 .htaccess
 *.config
 *.conf.php
