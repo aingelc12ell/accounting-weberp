@@ -215,7 +215,8 @@ pip-log.txt
 /_mods/config/
 companies/
 /XHRequests/
-/javascript/jquery/
+/javascripts/jquery/
+/javascripts/script.js
 /css/custom.css
 .htaccess
 *.config
