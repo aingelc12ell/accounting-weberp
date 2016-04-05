@@ -39,7 +39,8 @@ if (isset($_POST['submit'])) {
         
 		$sql = "UPDATE chartmaster SET accountname='" . DB_escape_string($_POST['AccountName']) . "',
 						group_='" . DB_escape_string($_POST['Group']) . "',
-                        `sequence` = '". $_POST['AccountOrder']."'
+                        `sequence` = '". $_POST['AccountOrder']."',
+                        `parentcode` = '".$_POST['ParentCode']."'
 				WHERE accountcode ='" . $SelectedAccount . "'";
 
 		$ErrMsg = _('Could not update the account because');
@@ -52,11 +53,12 @@ if (isset($_POST['submit'])) {
 		$ErrMsg = _('Could not add the new account code');
 		$sql = "INSERT INTO chartmaster (accountcode,
 						accountname,
-						group_,`sequence`)
+						group_,`sequence`,`parentcode`)
 					VALUES ('" . $_POST['AccountCode'] . "',
 							'" . $_POST['AccountName'] . "',
 							'" . $_POST['Group'] . "',
-                            '" . $_POST['AccountOrder'] ."')";
+                            '" . $_POST['AccountOrder'] ."',
+                            '".$_POST['ParentCode']."')";
 		$result = DB_query($sql,$ErrMsg);
 
 		prnMsg(_('The new general ledger account has been added'),'success');
@@ -66,6 +68,7 @@ if (isset($_POST['submit'])) {
 	unset ($_POST['AccountCode']);
 	unset ($_POST['AccountName']);
     unset ($_POST['AccountOrder']);
+    unset ($_POST['ParentCode']);
 	unset($SelectedAccount);
 
 } elseif (isset($_GET['delete'])) {
@@ -219,7 +222,7 @@ if (!isset($_GET['delete'])) {
 	if (isset($SelectedAccount)) {
 		//editing an existing account
 
-		$sql = "SELECT accountcode, accountname, group_ FROM chartmaster WHERE accountcode='" . $SelectedAccount ."'";
+		$sql = "SELECT accountcode, accountname, group_, sequence, parentcode FROM chartmaster WHERE accountcode='" . $SelectedAccount ."'";
 
 		$result = DB_query($sql);
 		$myrow = DB_fetch_array($result);
@@ -227,6 +230,7 @@ if (!isset($_GET['delete'])) {
 		$_POST['AccountCode'] = $myrow['accountcode'];
 		$_POST['AccountName']	= $myrow['accountname'];
         $_POST['AccountOrder'] = $myrow['sequence'];
+        $_POST['ParentCode'] = $myrow['parentcode'];
 		$_POST['Group'] = $myrow['group_'];
 
 		echo '<input type="hidden" name="SelectedAccount" value="' . $SelectedAccount . '" />';
@@ -269,8 +273,25 @@ if (!isset($_GET['delete'])) {
 		echo $myrow[0] . '">' . $myrow[0] . '</option>';
 	}
     echo '</select></td>
-		</tr>
-		</table>
+		</tr>';
+    
+    $sql = "SELECT accountcode,accountname FROM chartmaster WHERE parentcode IS NULL OR parentcode='' ORDER BY `accountcode`";
+    $result = DB_query($sql);
+    echo '<tr>
+        <td>' . _('Parent Account') .':</td>
+        <td><select name="ParentCode" size="1">';
+    while ($myrow = DB_fetch_assoc($result)){
+        echo '<option value="',$myrow['accountcode'],'"',($_POST['ParentCode'] == $myrow['accountcode'] ? ' selected="selected"' : ''),'>'
+            ,$myrow['accountcode']
+            ,' | '
+            ,$myrow['accountname']
+            ,'</option>'
+            ;
+    }
+    echo '</select></td>
+        </tr>';
+        
+	echo '</table>
 		<br />
 		<div class="centre">
 			<input type="submit" name="submit" value="'. _('Enter Information') . '" />
@@ -287,15 +308,16 @@ then none of the above are true and the list of ChartMaster will be displayed wi
 links to delete or edit each. These will call the same page again and allow update/input
 or deletion of the records*/
 
-	$sql = "SELECT accountcode,
-			accountname,
-			group_,
-            `sequence`,
-			CASE WHEN pandl=0 THEN '" . _('Balance Sheet') . "' ELSE '" . _('Profit/Loss') . "' END AS acttype
-		FROM chartmaster,
-			accountgroups
-		WHERE chartmaster.group_=accountgroups.groupname
-		ORDER BY accountgroups.sequenceintb,chartmaster.sequence,chartmaster.accountcode";
+	$sql = "SELECT c.accountcode,
+			c.accountname,
+			c.group_,
+            c.sequence,
+            c.parentcode,
+            d.accountname as `parent`,
+			CASE WHEN g.pandl=0 THEN '" . _('Balance Sheet') . "' ELSE '" . _('Profit/Loss') . "' END AS acttype
+		FROM chartmaster c LEFT OUTER JOIN chartmaster d ON c.parentcode = d.accountcode
+		INNER JOIN accountgroups g ON c.group_=g.groupname
+		ORDER BY g.sequenceintb,c.sequence,c.accountcode";
 
 	$ErrMsg = _('The chart accounts could not be retrieved because');
 
@@ -308,6 +330,7 @@ or deletion of the records*/
 			<th class="ascending">' . _('Account Group') . '</th>
 			<th class="ascending">' . _('P/L or B/S') . '</th>
             <th class="ascending">' . _('Display Order') . '</th>
+            <th class="ascending">' . _('Parent Account') . '</th>
 			<th colspan="2">&nbsp;</th>
 		</tr>';
 
@@ -317,7 +340,8 @@ or deletion of the records*/
 		if ($k==1){
 			echo '<tr class="EvenTableRows">';
 			$k=0;
-		} else {
+		} 
+        else {
 			echo '<tr class="OddTableRows">';
 			$k=1;
 		}
@@ -328,6 +352,7 @@ or deletion of the records*/
 		<td>%s</td>
 		<td>%s</td>
         <td>%s</td>
+        <td>%s</td>
 		<td><a href=\"%s&amp;SelectedAccount=%s\">" . _('Edit') . "</a></td>
 		<td><a href=\"%s&amp;SelectedAccount=%s&amp;delete=1\" onclick=\"return confirm('" . _('Are you sure you wish to delete this account? Additional checks will be performed in any event to ensure data integrity is not compromised.') . "');\">" . _('Delete') . "</a></td>
 		</tr>",
@@ -336,6 +361,7 @@ or deletion of the records*/
 		$myrow['group_'],
 		$myrow['acttype'],
         $myrow['sequence'],
+        $myrow['parent'],
 		htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8') . '?',
 		$myrow['accountcode'],
 		htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8') . '?',

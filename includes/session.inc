@@ -255,4 +255,4 @@ if (sizeof($_POST) > 0 AND !isset($AllowAnyone)) {
 		exit;
 	}
 }
-?>
+

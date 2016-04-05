@@ -11,7 +11,7 @@ function isSetParam($param,$paramArray=array()){
 }
 
 function numberonly($string,$params=array()){
-    $regex = issetParams('digits',$params)
+    $regex = isSetParam('digits',$params)
         ? "/[^0-9]/"
         : "/[^0-9\.\-]/"
         ;

@@ -42,7 +42,7 @@ if (isset($DirectoryLevelsDeep)){
 if ($RootPath == '/' OR $RootPath == '\\') {
     $RootPath = '';
 }
-error_reporting(E_ALL && ~E_NOTICE && ~E_WARNING);
+#error_reporting(E_ALL && ~E_NOTICE && ~E_WARNING);
 //Installed companies 
 $CompanyList[0] = array('database'=>'weberpdb' ,'company'=>'Lorma Colleges' );
 //End Installed companies-do not change this line

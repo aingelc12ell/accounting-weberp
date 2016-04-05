@@ -152,6 +152,7 @@ else if (isset($_POST['PrintPDF'])) {
 			accountgroups.pandl,
 			chartdetails.accountcode ,
 			chartmaster.accountname,
+            chartmaster.parentcode,
 			Sum(CASE WHEN chartdetails.period='" . $_POST['FromPeriod'] . "' THEN chartdetails.bfwd ELSE 0 END) AS firstprdbfwd,
 			Sum(CASE WHEN chartdetails.period='" . $_POST['FromPeriod'] . "' THEN chartdetails.bfwdbudget ELSE 0 END) AS firstprdbudgetbfwd,
 			Sum(CASE WHEN chartdetails.period='" . $_POST['ToPeriod'] . "' THEN chartdetails.bfwd + chartdetails.actual ELSE 0 END) AS lastprdcfwd,
@@ -209,10 +210,20 @@ else if (isset($_POST['PrintPDF'])) {
 	$MonthProfitLoss = 0;
 	$MonthBudgetProfitLoss= 0;
 	$BFwdProfitLoss = 0;
+    
 	$CheckMonth = 0;
 	$CheckBudgetMonth = 0;
 	$CheckPeriodActual = 0;
 	$CheckPeriodBudget = 0;
+    
+    $CheckMonth_d = 0;
+    $CheckBudgetMonth_d = 0;
+    $CheckPeriodActual_d = 0;
+    $CheckPeriodBudget_d = 0;
+    $CheckMonth_c = 0;
+    $CheckBudgetMonth_c = 0;
+    $CheckPeriodActual_c = 0;
+    $CheckPeriodBudget_c = 0;
 
 	while ($myrow=DB_fetch_array($AccountsResult)) {
 
@@ -423,6 +434,7 @@ else {
 			accountgroups.pandl,
 			chartdetails.accountcode ,
 			chartmaster.accountname,
+            chartmaster.parentcode,
 			Sum(CASE WHEN chartdetails.period='" . $_POST['FromPeriod'] . "' THEN chartdetails.bfwd ELSE 0 END) AS firstprdbfwd,
 			Sum(CASE WHEN chartdetails.period='" . $_POST['FromPeriod'] . "' THEN chartdetails.bfwdbudget ELSE 0 END) AS firstprdbudgetbfwd,
 			Sum(CASE WHEN chartdetails.period='" . $_POST['ToPeriod'] . "' THEN chartdetails.bfwd + chartdetails.actual ELSE 0 END) AS lastprdcfwd,
@@ -458,7 +470,7 @@ else {
 
 	$TableHeader = '<tr>'
 						.($SummaryOnly
-                            ? '<th rowspan="2">' . _('Account Group') . '</th>'
+                            ? '<th rowspan="2" colspan="2">' . _('Account Group') . '</th>'
                             : '<th rowspan="2">' . _('Account') . '</th>'
                                 .'<th rowspan="2">' . _('Account Name') . '</th>'
                         )
@@ -500,6 +512,15 @@ else {
 	$CheckBudgetMonth = 0;
 	$CheckPeriodActual = 0;
 	$CheckPeriodBudget = 0;
+    
+    $tmad = 0;
+    $tmac = 0;
+    $tmbd = 0;
+    $tmbc = 0;
+    $tpad = 0;
+    $tpac = 0;
+    $tpbd = 0;
+    $tpbc = 0;
 
 	while ($myrow=DB_fetch_array($AccountsResult)) {
 
@@ -513,7 +534,8 @@ else {
 					$GrpPrdActual[$Level] =0;
 					$GrpPrdBudget[$Level] =0;
 					$ParentGroups[$Level]='';
-				} elseif ($ParentGroups[$Level]==$myrow['parentgroupname']) {
+				} 
+                elseif ($ParentGroups[$Level]==$myrow['parentgroupname']) {
                     $mactuald = $GrpActual[$Level] > 0 ? $GrpActual[$Level] : 0;
                     $mactualc = $GrpActual[$Level] < 0 ? abs($GrpActual[$Level]) : 0;
                     
@@ -525,9 +547,9 @@ else {
                     
                     $pbudgetd = $GrpPrdBudget[$Level] > 0 ? $GrpPrdBudget[$Level] : 0;
                     $pbudgetc = $GrpPrdBudget[$Level] < 0 ? abs($GrpPrdBudget[$Level]) : 0;
-                    printf('<tr>'
+                    printf('<tr class="accountgrp" data-group="'.$ParentGroups[$Level].'">'
                         .($SummaryOnly
-                            ? '<td>%s</td>
+                            ? '<tdcolspan="2">%s</td>
                                 <td class="number">%s</td>
                                 <td class="number">%s</td>
                                 <td class="number">%s</td>
@@ -586,7 +608,8 @@ else {
 					$GrpPrdActual[$Level] =0;
 					$GrpPrdBudget[$Level] =0;
 					$ParentGroups[$Level]=$myrow['groupname'];
-				} else {
+				} 
+                else {
 					do {
 						/*printf('<tr>'
                         .($SummaryOnly
@@ -618,9 +641,9 @@ else {
                         
                         $pbudgetd = $GrpPrdBudget[$Level] > 0 ? $GrpPrdBudget[$Level] : 0;
                         $pbudgetc = $GrpPrdBudget[$Level] < 0 ? abs($GrpPrdBudget[$Level]) : 0;
-                        printf('<tr>'
+                        printf('<tr class="accountgrp" data-group="'.$ParentGroups[$Level].'">'
                             .($SummaryOnly
-                                ? '<td>%s</td>
+                                ? '<td colspan="2">%s</td>
                                     <td class="number">%s</td>
                                     <td class="number">%s</td>
                                     <td class="number">%s</td>
@@ -694,9 +717,9 @@ else {
                         
                         $pbudgetd = $GrpPrdBudget[$Level] > 0 ? $GrpPrdBudget[$Level] : 0;
                         $pbudgetc = $GrpPrdBudget[$Level] < 0 ? abs($GrpPrdBudget[$Level]) : 0;
-                        printf('<tr>'
+                        printf('<tr class="accountgrp" data-group="'.$ParentGroups[$Level].'">'
                             .($SummaryOnly
-                                ? '<td>%s</td>
+                                ? '<td colspan="2">%s</td>
                                     <td class="number">%s</td>
                                     <td class="number">%s</td>
                                     <td class="number">%s</td>
@@ -754,7 +777,8 @@ else {
 		if ($k==1){
 			echo $SummaryOnly ? '' : '<tr class="EvenTableRows">';
 			$k=0;
-		} else {
+		} 
+        else {
 			echo $SummaryOnly ? '' : '<tr class="OddTableRows">';
 			$k++;
 		}
@@ -772,7 +796,8 @@ else {
 			$MonthBudgetProfitLoss += $myrow['monthbudget'];
 			$BFwdProfitLoss += $myrow['firstprdbfwd'];
 		} 
-        else { /*PandL ==0 its a balance sheet account */
+        else { 
+            /*PandL ==0 its a balance sheet account */
 			if ($myrow['accountcode']==$RetainedEarningsAct){
 				$AccountPeriodActual = $BFwdProfitLoss + $myrow['lastprdcfwd'];
 				$AccountPeriodBudget = $BFwdProfitLoss + $myrow['lastprdbudgetcfwd'] - $myrow['firstprdbudgetbfwd'];
@@ -804,6 +829,16 @@ else {
 		$CheckBudgetMonth += $myrow['monthbudget'];
 		$CheckPeriodActual += $AccountPeriodActual;
 		$CheckPeriodBudget += $AccountPeriodBudget;
+        
+        $CheckMonth_d += $myrow['monthactual'] > 0 ? $myrow['monthactual'] : 0;
+        $CheckBudgetMonth_d += $myrow['monthbudget'] > 0 ? $myrow['monthbudget'] : 0;
+        $CheckPeriodActual_d += $AccountPeriodActual > 0 ? $AccountPeriodActual : 0;
+        $CheckPeriodBudget_d += $AccountPeriodBudget > 0 ? $AccountPeriodBudget : 0;
+        
+        $CheckMonth_c += $myrow['monthactual'] < 0 ? abs($myrow['monthactual']) : 0;
+        $CheckBudgetMonth_c += $myrow['monthbudget'] < 0 ? abs($myrow['monthbudget']) : 0;
+        $CheckPeriodActual_c += $AccountPeriodActual < 0 ? abs($AccountPeriodActual) : 0;
+        $CheckPeriodBudget_c += $AccountPeriodBudget < 0 ? abs($AccountPeriodBudget) : 0;
 
 		$ActEnquiryURL = '<a href="'. $RootPath . '/GLAccountInquiry.php?FromPeriod=' . $_POST['FromPeriod'] . '&amp;ToPeriod=' . $_POST['ToPeriod'] . '&amp;Account=' . $myrow['accountcode'] . '&amp;Show=Yes">' . $myrow['accountcode'] . '</a>';
         if(!$SummaryOnly){
@@ -856,6 +891,18 @@ else {
                     locale_number_format($pbd,$_SESSION['CompanyRecord']['decimalplaces']),
                     locale_number_format($pbc,$_SESSION['CompanyRecord']['decimalplaces'])
                     );
+            $tmad += $myrow['monthactual'] > 0 ? $myrow['monthactual'] : 0;
+            $tmac += $myrow['monthactual'] < 0 ? abs($myrow['monthactual']) : 0;
+            
+            $tmbd += $myrow['monthbudget'] > 0 ? $myrow['monthbudget'] : 0;
+            $tmbc += $myrow['monthbudget'] < 0 ? abs($myrow['monthbudget']) : 0;
+            
+            $tpad += $AccountPeriodActual > 0 ? $AccountPeriodActual : 0;
+            $tpac += $AccountPeriodActual < 0 ? abs($AccountPeriodActual) : 0;
+            
+            $tpbd += $AccountPeriodBudget > 0 ? $AccountPeriodBudget : 0;
+            $tpbc += $AccountPeriodBudget < 0 ? abs($AccountPeriodBudget) : 0;
+            
         }
 		$j++;
 	}
@@ -866,7 +913,8 @@ else {
 		if ($myrow['parentgroupname']==$ActGrp){
 			$Level++;
 			$ParentGroups[$Level]=$myrow['groupname'];
-		} elseif ($ParentGroups[$Level]==$myrow['parentgroupname']) {
+		} 
+        elseif ($ParentGroups[$Level]==$myrow['parentgroupname']) {
 			/*printf('<tr>'
                         .($SummaryOnly
                             ? '<td>%s</td>
@@ -894,9 +942,9 @@ else {
             $pac = $GrpPrdActual[$Level] < 0 ? abs($GrpPrdActual[$Level]) : 0;
             $pbd = $GrpPrdBudget[$Level] > 0 ? $GrpPrdBudget[$Level] : 0;
             $pbc = $GrpPrdBudget[$Level] < 0 ? abs($GrpPrdBudget[$Level]) : 0;
-            printf('<tr>'
+            printf('<tr class="accountgrp" data-group="'.$ParentGroups[$Level].'">'
                         .($SummaryOnly
-                            ? '<td>%s</td>
+                            ? '<td colspan="2">%s</td>
                                 <td class="number">%s</td>
                                 <td class="number">%s</td>
                                 <td class="number">%s</td>
@@ -932,7 +980,8 @@ else {
 			$GrpPrdActual[$Level] =0;
 			$GrpPrdBudget[$Level] =0;
 			$ParentGroups[$Level]=$myrow['groupname'];
-		} else {
+		} 
+        else {
 			do {
 				/*printf('<tr>'
                         .($SummaryOnly
@@ -961,9 +1010,9 @@ else {
             $pac = $GrpPrdActual[$Level] < 0 ? abs($GrpPrdActual[$Level]) : 0;
             $pbd = $GrpPrdBudget[$Level] > 0 ? $GrpPrdBudget[$Level] : 0;
             $pbc = $GrpPrdBudget[$Level] < 0 ? abs($GrpPrdBudget[$Level]) : 0;
-            printf('<tr>'
+            printf('<tr class="accountgrp" data-group="'.$ParentGroups[$Level].'">'
                         .($SummaryOnly
-                            ? '<td>%s</td>
+                            ? '<td colspan="2">%s</td>
                                 <td class="number">%s</td>
                                 <td class="number">%s</td>
                                 <td class="number">%s</td>
@@ -1035,9 +1084,9 @@ else {
                 
                 $pbd = $GrpPrdBudget[$Level] > 0 ? $GrpPrdBudget[$Level] : 0;
                 $pbc = $GrpPrdBudget[$Level] < 0 ? abs($GrpPrdBudget[$Level]) : 0;
-                printf('<tr>'
+                printf('<tr class="accountgrp" data-group="'.$ParentGroups[$Level].'">'
                             .($SummaryOnly
-                                ? '<td>%s</td>
+                                ? '<td colspan="2">%s</td>
                                     <td class="number">%s</td>
                                     <td class="number">%s</td>
                                     <td class="number">%s</td>
@@ -1073,7 +1122,8 @@ else {
 				$GrpPrdActual[$Level] =0;
 				$GrpPrdBudget[$Level] =0;
 				$ParentGroups[$Level]='';
-			} else {
+			} 
+            else {
 				$Level =1;
 			}
 		}
@@ -1103,8 +1153,32 @@ else {
     
     $pbd = $CheckPeriodBudget > 0 ? $CheckPeriodBudget : 0;
     $pbc = $CheckPeriodBudget < 0 ? abs($CheckPeriodBudget) : 0;
-    printf('<tr style="background-color:#ffffff">
-                <td '.($SummaryOnly ? '' : ' colspan="2"').'><b>' . _('Check Totals') . '</b></td>
+    printf('<tr style="background-color:#ffffff" id="checktotal">
+                <td colspan="2" rowspan="2"><b>' . _('Check Totals') . '</b></td>
+                <td class="number">%s</td>
+                <td class="number">%s</td>
+                <td class="number">%s</td>
+                <td class="number">%s</td>
+                <td class="number">%s</td>
+                <td class="number">%s</td>
+                <td class="number">%s</td>
+                <td class="number">%s</td>
+            </tr>',
+            locale_number_format($CheckMonth_d,$_SESSION['CompanyRecord']['decimalplaces']),
+            locale_number_format($CheckMonth_c,$_SESSION['CompanyRecord']['decimalplaces']),
+            
+            locale_number_format($CheckBudgetMonth_d,$_SESSION['CompanyRecord']['decimalplaces']),
+            locale_number_format($CheckBudgetMonth_c,$_SESSION['CompanyRecord']['decimalplaces']),
+            
+            locale_number_format($CheckPeriodActual_d,$_SESSION['CompanyRecord']['decimalplaces']),
+            locale_number_format($CheckPeriodActual_c,$_SESSION['CompanyRecord']['decimalplaces']),
+            
+            locale_number_format($CheckPeriodBudget_d,$_SESSION['CompanyRecord']['decimalplaces']),
+            locale_number_format($CheckPeriodBudget_c,$_SESSION['CompanyRecord']['decimalplaces'])
+            );
+            
+    printf('<tr style="background-color:#ffffff" id="checktotal">
+                <!-- <td colspan="2"><b>' . _('Check Totals') . '</b></td> -->
                 <td class="number">%s</td>
                 <td class="number">%s</td>
                 <td class="number">%s</td>
@@ -1137,6 +1211,119 @@ else {
 			'<button formaction="index.php" type="submit"><img alt="" src="'.$RootPath.'/css/'.$Theme.
 				'/images/previous.png" /> ' . _('Return') . '</button>'.// "Return" button.
 		'</div>';
+    $JSFunctions .= "
+    var displayAccount = function(v,p){
+        var pk = Object.keys(p)
+            ,ma = parseFloat(v.monthactual)
+            ,mac = typeof(p[v.accountcode])=='object' ? parseFloat(p[v.accountcode].mac) : (ma > 0 ? ma : 0)
+            ,mad = typeof(p[v.accountcode])=='object' ? parseFloat(p[v.accountcode].mad) : (ma < 0 ? Math.abs(ma) : 0)
+            ,mb = parseFloat(v.monthbudget)
+            ,mbd = typeof(p[v.accountcode])=='object' ? parseFloat(p[v.accountcode].mbd) : (mb > 0 ? mb : 0)
+            ,mbc = typeof(p[v.accountcode])=='object' ? parseFloat(p[v.accountcode].mbc) : (mb < 0 ? Math.abs(mb) : 0)
+            ,pa = parseFloat(v.periodactual)
+            ,pad = typeof(p[v.accountcode])=='object' ? parseFloat(p[v.accountcode].pad) : (pa > 0 ? pa : 0)
+            ,pac = typeof(p[v.accountcode])=='object' ? parseFloat(p[v.accountcode].pac) : (pa < 0 ? Math.abs(pa) : 0)
+            ,pb = parseFloat(v.periodbudget)
+            ,pbd = typeof(p[v.accountcode])=='object' ? parseFloat(p[v.accountcode].pbd) : (pb > 0 ? pb : 0)
+            ,pbc = typeof(p[v.accountcode])=='object' ? parseFloat(p[v.accountcode].pbc) : (pb < 0 ? Math.abs(pb) : 0)
+            ,h = '<tr' 
+                + (v.parentcode != '' ? ' class=\"hidden par' + v.parentcode + '\"' 
+                    : (typeof(p[v.accountcode])=='object'
+                        ? ' class=\"bold pointer parcode\" data-account=\"' + v.accountcode + '\"' 
+                        : '')
+                    )
+                + '>'
+                + '<td>'
+                    + (typeof(p[v.accountcode])=='object'
+                        ? v.accountcode
+                        : '<a href=\"". $RootPath . "/GLAccountInquiry.php'
+                    + '?FromPeriod=" . $_POST['FromPeriod'] 
+                        . "&amp;ToPeriod=" . $_POST['ToPeriod'] 
+                        . "&amp;Account=' +  v.accountcode + '&amp;Show=Yes\">' 
+                    + v.accountcode + '</a>'
+                    )
+                + '</td>'
+                + '<td>' + v.accountname + '</td>'
+                + '<td class=\"number\">' + (mad > 0 ? number_format(mad,".$_SESSION['CompanyRecord']['decimalplaces'].") : '') + '</td>'
+                + '<td class=\"number\">' + (mac > 0 ? number_format(mac,".$_SESSION['CompanyRecord']['decimalplaces'].") : '') + '</td>'
+                + '<td class=\"number\">' + (mbd > 0 ? number_format(mbd,".$_SESSION['CompanyRecord']['decimalplaces'].") : '') + '</td>'
+                + '<td class=\"number\">' + (mbc > 0 ? number_format(mbc,".$_SESSION['CompanyRecord']['decimalplaces'].") : '') + '</td>'
+                + '<td class=\"number\">' + (pad > 0 ? number_format(pad,".$_SESSION['CompanyRecord']['decimalplaces'].") : '') + '</td>'
+                + '<td class=\"number\">' + (pac > 0 ? number_format(pac,".$_SESSION['CompanyRecord']['decimalplaces'].") : '') + '</td>'
+                + '<td class=\"number\">' + (pbd > 0 ? number_format(pbd,".$_SESSION['CompanyRecord']['decimalplaces'].") : '') + '</td>'
+                + '<td class=\"number\">' + (pbc > 0 ? number_format(pbc,".$_SESSION['CompanyRecord']['decimalplaces'].") : '') + '</td>'
+                + '</tr>'
+            ;
+        
+        return h;
+    };
+    var toggleRow = function(pc){
+        $.each(pc,function(){
+            if($(this).hasClass('hidden')){
+                $(this).removeClass('hidden').show();
+            }else{
+                $(this).addClass('hidden').hide();
+            }
+        });
+    };
+    var manageList = function(){
+        $('tr.parcode').unbind().bind('click',function(){
+            var accode = $(this).attr('data-account');
+            toggleRow($('tr.par' + accode));
+        });
+    };
+    var displayTotals = function(v){
+        return '<tr class=\"bold\">'
+            + '<td colspan=\"2\">Sub Totals</td>'
+            + '<td class=\"number\">' 
+                + (v.CheckMonth_d != 0 ? number_format(v.CheckMonth_d,".$_SESSION['CompanyRecord']['decimalplaces'].") : '-') + '</td>'
+            + '<td class=\"number\">' 
+                + (v.CheckMonth_c != 0 ? number_format(v.CheckMonth_c,".$_SESSION['CompanyRecord']['decimalplaces'].") : '-') + '</td>'
+            + '<td class=\"number\">' 
+                + (v.CheckBudgetMonth_d != 0 ? number_format(v.CheckBudgetMonth_d,".$_SESSION['CompanyRecord']['decimalplaces'].") : '-') + '</td>'
+            + '<td class=\"number\">' 
+                + (v.CheckBudgetMonth_c != 0 ? number_format(v.CheckBudgetMonth_c,".$_SESSION['CompanyRecord']['decimalplaces'].") : '-') + '</td>'
+            + '<td class=\"number\">' 
+                + (v.CheckPeriodActual_d != 0 ? number_format(v.CheckPeriodActual_d,".$_SESSION['CompanyRecord']['decimalplaces'].") : '-') + '</td>'
+            + '<td class=\"number\">' 
+                + (v.CheckPeriodActual_c != 0 ? number_format(v.CheckPeriodActual_c,".$_SESSION['CompanyRecord']['decimalplaces'].") : '-') + '</td>'
+            + '<td class=\"number\">' 
+                + (v.CheckPeriodBudget_d != 0 ? number_format(v.CheckPeriodBudget_d,".$_SESSION['CompanyRecord']['decimalplaces'].") : '-') + '</td>'
+            + '<td class=\"number\">' 
+                + (v.CheckPeriodBudget_c != 0 ? number_format(v.CheckPeriodBudget_c,".$_SESSION['CompanyRecord']['decimalplaces'].") :  '-') + '</td>'
+            + '</tr>'
+            ;
+    };
+    var getGroupAccounts = function(grp,tr){
+        $.post(
+            '".$RootPath."XHRequests/trialbalance/GroupAccounts.php'
+            ,{
+                FromPeriod : '".$_POST['FromPeriod']."',
+                ToPeriod : '".$_POST['ToPeriod']."',
+                GroupName : grp
+            },function(d){
+                if(typeof(d.data)=='object' && typeof(d.total)=='object'){
+                    var h = '';
+                    $.each(d.data,function(i,v){
+                        h += displayAccount(v,d.parentcodes);
+                    });
+                    h += displayTotals(d.total);
+                    tr.after(h);
+                    manageList();
+                }
+            },'json'
+        );
+    };
+    ";
+    $JScript .= $SummaryOnly ? "
+    $('tr#checktotal').addClass('bold OddTableRows');
+    $('tr.accountgrp').addClass('bold OddTableRows').not('[displayed=\"true\"]').addClass('pointer').unbind().bind('click',function(){
+        var tr = $(this)
+            ,grp = tr.attr('data-group');
+        tr.attr('displayed','true').removeClass('pointer');
+        getGroupAccounts(grp,tr);
+    });
+    " : "";
 }
 echo '</div>
 	</form>';

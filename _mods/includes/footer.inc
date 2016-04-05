@@ -20,7 +20,7 @@ echo '</div>';
 
 echo '<div id="FooterVersionDiv">';
 echo 'WebERP v' . $_SESSION['VersionNumber'] . ' &copy; 2004 - ' . Date('Y'). ' <a target="_blank" href="http://www.weberp.org/weberp/doc/Manual/ManualContributors.html">weberp.org</a>'
-    .'<br />'._('Forked') .' v'.SYSTEM_VERSION.' for '.$CompanyList[0]['company']
+    .'<br />'._('Forked') .' <a target="_blank" title="History Log" href="' . $RootPath.'/!history/">v'.SYSTEM_VERSION.'</a> for '.$CompanyList[0]['company']
     ;
 echo '</div>';
 
@@ -28,7 +28,6 @@ echo '</div>'; // FooterWrapDiv
 echo '</div>'; // FooterDiv
 echo '</div>'; // Canvas
 
-echo '<!-- delayed script -->';
 ####################### JAVASCRIPTS
 if(isset($EndScript)){
     echo $EndScript;

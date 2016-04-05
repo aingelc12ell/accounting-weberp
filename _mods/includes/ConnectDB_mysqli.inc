@@ -1,14 +1,5 @@
 <?php
-$modfile = implode(DIRECTORY_SEPARATOR,array(
-    ROOT_DIR, #struc for includes
-    '_mods',
-    str_replace(ROOT_DIR,'',__FILE__)
-));
-if(file_exists($modfile)){
-    include($modfile);
-}
-else{
-    die($modfile);
+
 /* $Id: ConnectDB_mysqli.inc 6946 2014-10-27 07:30:11Z daintree $ */
 
 /* PeterMoulding.com
@@ -85,7 +76,7 @@ function DB_query ($SQL,
 
 	if (DB_error_no() != 0 AND $TrapErrors==true){
 		if ($TrapErrors){
-			require_once($PathPrefix . 'includes/header.inc');
+			require_once(ROOT_DIR . 'includes/header.inc');
 		}
 		prnMsg($ErrorMessage . '<br />' . DB_error_msg(),'error', _('Database Error'). ' ' .DB_error_no());
 		if ($debug==1){
@@ -101,7 +92,7 @@ function DB_query ($SQL,
 			}
 		}
 		if ($TrapErrors){
-			include($PathPrefix . 'includes/footer.inc');
+			include(ROOT_DIR . 'includes/footer.inc');
 			exit;
 		}
 	} elseif (isset($_SESSION['MonthsAuditTrail']) and (DB_error_no()==0 AND $_SESSION['MonthsAuditTrail']>0) AND (DB_affected_rows($result)>0)){
@@ -242,5 +233,4 @@ function DB_IgnoreForeignKeys(){
 function DB_ReinstateForeignKeys(){
 	global $db;
 	mysqli_query($db, 'SET FOREIGN_KEY_CHECKS=1');
-}
 }

@@ -54,4 +54,3 @@ if (!isset($_SESSION['DatabaseName'])){
 } else {
 	include_once ($PathPrefix . 'includes/ConnectDB_' . $DBType . '.inc');
 }
-?>

@@ -58,4 +58,6 @@ else{
 #           - can be duplicated on both locations for physical path resolutions
 ###################################################################################################
 /javascripts/jquery         =>  /_mods/javascripts/jquery
-/ajax                       =>  /_mods/ajax
+/javascripts/script.js      =>  /_mods/javascripts/script.js
+/XHRequests                 =>  /_mods/XHRequests
+/css/custom.css             =>  /_mods/css/custom.css

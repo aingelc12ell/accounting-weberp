@@ -53,6 +53,7 @@ if ($RootPath == '/' OR $RootPath == '\\') {
 error_reporting(E_ALL && ~E_NOTICE && ~E_WARNING);
 //Installed companies 
 $CompanyList[0] = array('database'=>'weberpdemo' ,'company'=>'WebERP Demo' );
+#$CompanyList[] = array('database'=>'weberpdb4' ,'company'=>'Lorma Colleges');
 //End Installed companies-do not change this line
 /* Make sure there is nothing - not even spaces after this last ?> */
 
