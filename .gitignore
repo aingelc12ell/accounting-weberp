@@ -214,6 +214,9 @@ pip-log.txt
 # SELF
 /_mods/config/
 companies/
+/XHRequests/
+/javascript/jquery/
+/css/custom.css
 .htaccess
 *.config
 *.conf.php
