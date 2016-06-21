@@ -212,7 +212,7 @@ pip-log.txt
 *.mo
 
 # SELF
-/_mods/config/
+/_mods/config
 companies
 XHRequests
 javascripts/jquery
